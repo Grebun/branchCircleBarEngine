@@ -1,0 +1,17 @@
+body{
+	background-color: #003946;
+}
+
+.graphicTimer{
+	position: absolute;
+}
+
+#topTimer{
+	width: 400pt;
+	height: 400pt;
+}
+
+#topTimerScale{
+	width: 400pt;
+	height: 400pt;
+}

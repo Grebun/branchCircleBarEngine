@@ -1,24 +1,7 @@
-/*
-
-script:        chartBarEngine ver.1.5
-autor:         dUtkin
-releaseDate:   24.12.2016
-
-releaseNote:   скрипт предназначен для анимированного
-               вывода круглого прогресс бара с хаданными
-               параметрами из управляющего Core скрипта.
-
-               В 1.5 добавлена масштабная шкала по минутам
-
-               В 2.0 появилась возможность ребилда бублика
-               для динамической отрисовки прогресса. Дополнительно
-               имплементирована проверка исполнения Стартера (правда
-               через костыли)
-*/
 
 function circleEngine() {
 
-  var circleContainer, circlePath, htmlElement;
+  var circleContainer, circlePath, htmlElement, htmlContainer;
   var curentRotator, radius, lineWidth, lineColor, xPosition, yPosition;
   var starterChecker = Boolean(false);
 
@@ -48,6 +31,10 @@ function circleEngine() {
     lineWidth = lineWidthSet;
   };
 
+  this.setContainer = function (containerSet) {
+    htmlContainer = containerSet;
+  };
+
   this.lineColorSetup = function (lineColorSet) {
     lineColor = lineColorSet;
   };
@@ -59,6 +46,7 @@ function circleEngine() {
 
   this.scaleStarter = function (gradSet, aMargin, stdScaleWidth) { 
 
+    $("#" + htmlElement).clone().attr("id", htmlElement + "Scale").appendTo("#" + htmlContainer);
     circleScaleContainer = document.getElementById(htmlElement + "Scale");
     circleScalePath = circleScaleContainer.getContext("2d");
     circleScaleContainer.height = circleScaleContainer.width = $("#" + htmlElement + "Scale").height();
@@ -129,6 +117,39 @@ function circleEngine() {
     circlePath.lineWidth = lineWidth;
     circlePath.stroke();
   }; 
+
+  this.barShadowEngine = function(){
+    $("#" + htmlElement).clone().attr("id", htmlElement + "Shadow").appendTo("#" + htmlContainer); // Динамически создаёт контейнер для тени
+
+    
+    circleShadowContainer = document.getElementById(htmlElement + "Shadow");
+    circleShadowPath = circleShadowContainer.getContext("2d");
+    circleShadowContainer.height = circleShadowContainer.width = $("#" + htmlElement).height();
+
+    shadowAlpha = 0.5;
+    shadowRadius = 0;
+    shadowTimer = setInterval( function(){
+      if (shadowRadius <= (circleShadowContainer.height / 2)) {
+        circleShadowPath.clearRect(0, 0, circleShadowContainer.width, circleShadowContainer.height);
+        circleShadowPath.beginPath();
+        circleShadowPath.arc(xPosition, yPosition, shadowRadius, 0, 2 * Math.PI, false);
+        circleShadowPath.lineWidth = 1;
+
+        if (shadowRadius <= (circleShadowContainer.height / 4)){
+          shadowAlpha = (shadowRadius / (circleShadowContainer.height / 2));
+        } else {
+          shadowAlpha = 1 - (shadowRadius / (circleShadowContainer.height / 2));
+        }
+        circleShadowPath.strokeStyle = "rgba(255, 255, 255, " + shadowAlpha + ")"; 
+        console.log(shadowAlpha);
+
+        circleShadowPath.stroke();
+        shadowRadius += circleShadowContainer.height / 200;
+      } else {
+        shadowRadius = 0;
+      }
+    }, 20);
+  }
 
   this.checkStarterCompleate = function(){
     return starterChecker;
